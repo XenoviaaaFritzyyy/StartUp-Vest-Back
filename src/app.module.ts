@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+
 import { AuthModule } from './auth/auth.module';
 import { User } from './entities/user.entity';
 import { UsersModule } from './service/user.module';
+
+
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { UsersModule } from './service/user.module';
       host: '127.0.0.1',
       port: 3306,
       username: 'root',
-      password: 'JBiong213940981.',
+      password: 'sandkiller1234',
       database: 'startupvest',
       entities: [User],
       synchronize: true,
@@ -21,7 +22,7 @@ import { UsersModule } from './service/user.module';
     AuthModule,
     UsersModule
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
