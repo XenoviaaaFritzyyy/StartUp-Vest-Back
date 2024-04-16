@@ -7,6 +7,7 @@ import { compare } from 'bcrypt'; // Import bcrypt
 
 @Injectable()
 export class UserService {
+
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
