@@ -27,4 +27,9 @@ export class UserService {
   
     return null;
   }
+
+  async isEmailRegistered(email: string): Promise<boolean> {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    return !!user; // Returns true if user exists, false otherwise
+  }
 }

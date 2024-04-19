@@ -9,6 +9,11 @@ export class UsersController {
 
   @Post('register')
   async create(@Body() userData: User): Promise<void> {
+    const { email } = userData;
+    const isEmailRegistered = await this.userService.isEmailRegistered(email);
+    if (isEmailRegistered) {
+      throw new Error('Email already registered');
+    }
     await this.userService.create(userData);
   }
 
@@ -28,5 +33,11 @@ export class UsersController {
     const jwt = sign({ userId: user.id }, 'secretKey'); // Sign the JWT with the user's ID
 
     return { message: 'Login successful', jwt };
+  }
+
+  @Post('check-email')
+  async checkEmail(@Body() { email }: { email: string }): Promise<{ exists: boolean }> {
+    const isEmailRegistered = await this.userService.isEmailRegistered(email);
+    return { exists: isEmailRegistered };
   }
 }
