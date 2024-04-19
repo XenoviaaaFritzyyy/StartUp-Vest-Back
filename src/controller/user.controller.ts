@@ -1,8 +1,7 @@
 import { Controller, Post, Body, Get, UnauthorizedException } from '@nestjs/common';
-// import { UserService } from './user.service';
-// import { User } from './user.entity';
 import { UserService } from 'src/service/user.service';
 import { User } from 'src/entities/user.entity';
+import { sign } from 'jsonwebtoken'; // Import jsonwebtoken
 
 @Controller('users')
 export class UsersController {
@@ -12,6 +11,7 @@ export class UsersController {
   async create(@Body() userData: User): Promise<void> {
     await this.userService.create(userData);
   }
+
   @Get()
   findAll(): string {
     return 'This action returns all users';
@@ -25,8 +25,8 @@ export class UsersController {
       throw new UnauthorizedException();
     }
 
-    // TODO: Implement JWT or session here for user authentication
-    // For now, let's just return a success message
-    return { message: 'Login successful' };
+    const jwt = sign({ userId: user.id }, 'secretKey'); // Sign the JWT with the user's ID
+
+    return { message: 'Login successful', jwt };
   }
 }
