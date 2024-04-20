@@ -1,7 +1,8 @@
-import { Controller, Post, Body, Get, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, Get, UnauthorizedException, Req } from '@nestjs/common';
 import { UserService } from 'src/service/user.service';
 import { User } from 'src/entities/user.entity';
 import { sign } from 'jsonwebtoken'; // Import jsonwebtoken
+import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
 
 @Controller('users')
 export class UsersController {
@@ -40,4 +41,35 @@ export class UsersController {
     const isEmailRegistered = await this.userService.isEmailRegistered(email);
     return { exists: isEmailRegistered };
   }
+
+  @Get('profile')
+  async getProfile(@Req() request: Request): Promise<User> {
+    // Extract the user's ID from the JWT in the Authorization header.
+    const userId = this.getUserIdFromToken(request.headers['authorization']);
+    // Fetch the user's details from the database.
+    const user = await this.userService.findById(userId);
+    // Exclude the password field from the response for security reasons.
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+  }
+
+  private getUserIdFromToken(authorizationHeader?: string): number {
+    console.log('Authorization Header:', authorizationHeader);
+
+    if (!authorizationHeader) {
+        throw new UnauthorizedException('Authorization header is required');
+    }
+
+    // Replace 'Bearer ' with an empty string to get the JWT.
+    const token = authorizationHeader.replace('Bearer ', '');
+    console.log('Token:', token);
+
+    // Decode the JWT to get the payload.
+    const payload = jwt.verify(token, 'secretKey');
+    console.log('Payload:', payload);
+
+    // Return the user's ID from the payload.
+    return payload.userId;
+}
+
 }

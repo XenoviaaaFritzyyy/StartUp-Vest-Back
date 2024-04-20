@@ -32,4 +32,8 @@ export class UserService {
     const user = await this.usersRepository.findOne({ where: { email } });
     return !!user; // Returns true if user exists, false otherwise
   }
+
+  async findById(id: number): Promise<User> {
+    return this.usersRepository.findOne({ where: { id } });
+  }  
 }

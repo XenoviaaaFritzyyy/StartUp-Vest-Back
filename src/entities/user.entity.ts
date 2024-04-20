@@ -20,6 +20,8 @@ export class User {
   @Column({ length: 500 })
   gender: string;
 
-  @Column({ length: 500 })
-  password: string;
+  // @Column({ length: 500 })
+  // password: string;
+  @Column({ length: 500, nullable: true }) // Make the password property optional
+  password?: string;
 }
