@@ -3,7 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from './auth/auth.module';
 import { User } from './entities/user.entity';
-import { UsersModule } from './service/user.module';
+import { UsersModule } from './module/user.module';
+import { Startup } from './entities/businessprofileentities/startup.entity';
+import { Investor } from './entities/businessprofileentities/investor.entity';
+import { StartupModule } from './module/businessprofilemodule/startup.module';
+import { InvestorModule } from './module/businessprofilemodule/investor.module';
 
 
 
@@ -14,13 +18,15 @@ import { UsersModule } from './service/user.module';
       host: '127.0.0.1',
       port: 3306,
       username: 'root',
-      password: 'sandkiller1234',
+      password: 'JBiong213940981.',
       database: 'startupvest',
-      entities: [User],
+      entities: [User, Startup, Investor],
       synchronize: true,
     }),
     AuthModule,
-    UsersModule
+    UsersModule,
+    StartupModule,
+    InvestorModule
   ],
   controllers: [],
   providers: [],

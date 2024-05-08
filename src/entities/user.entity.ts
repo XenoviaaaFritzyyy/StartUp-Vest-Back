@@ -1,4 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, OneToOne } from 'typeorm';
+import { Startup } from 'src/entities/businessprofileentities/startup.entity';
+import { Investor } from './businessprofileentities/investor.entity';
 
 @Entity()
 export class User {
@@ -24,4 +26,10 @@ export class User {
   // password: string;
   @Column({ length: 500, nullable: true }) // Make the password property optional
   password?: string;
+
+  @OneToMany(() => Startup, startup => startup.user)
+  startups: Startup[];
+
+  @OneToOne(() => Investor, investor => investor.user)
+  investor: Investor;
 }

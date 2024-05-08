@@ -70,6 +70,6 @@ export class UsersController {
 
     // Return the user's ID from the payload.
     return payload.userId;
-}
+  }
 
 }
