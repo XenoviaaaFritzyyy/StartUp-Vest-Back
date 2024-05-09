@@ -18,7 +18,7 @@ import { InvestorModule } from './module/businessprofilemodule/investor.module';
       host: '127.0.0.1',
       port: 3306,
       username: 'root',
-      password: 'JBiong213940981.',
+      password: 'fritzyxenovia03',
       database: 'startupvest',
       entities: [User, Startup, Investor],
       synchronize: true,
