@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UnauthorizedException, Req } from '@nestjs/common';
+import { Controller, Post, Body, Get, UnauthorizedException, Req, Put, Param, NotFoundException } from '@nestjs/common';
 import { UserService } from 'src/service/user.service';
 import { User } from 'src/entities/user.entity';
 import { sign } from 'jsonwebtoken'; // Import jsonwebtoken
@@ -51,6 +51,18 @@ export class UsersController {
     // Exclude the password field from the response for security reasons.
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
+  }
+
+  @Put(':id')
+  async update(@Param('id') userId: string, @Body() userData: User): Promise<User> {
+    // Find the user by ID
+    const existingUser = await this.userService.findById(Number(userId));
+    if (!existingUser) {
+      throw new NotFoundException('User not found');
+    }
+    // Update user details
+    const updatedUser = await this.userService.update(Number(userId), userData);
+    return updatedUser;
   }
 
   private getUserIdFromToken(authorizationHeader?: string): number {
