@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, Req, UnauthorizedException, Get, Param, Query } from '@nestjs/common';
 import { InvestorService } from 'src/service/businessprofileservice/investor.service';
 import { Investor } from 'src/entities/businessprofileentities/investor.entity';
 import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
@@ -32,16 +32,31 @@ export class InvestorsController {
 
   @Post('create')
   async create(@Req() request: Request, @Body() investorData: Investor): Promise<any> {
-    // Extract the user's ID from the JWT in the Authorization header.
     const userId = this.getUserIdFromToken(request.headers['authorization']);
-    // Fetch the user from the database.
-    const user = await this.userService.findById(userId);
-    // Add the user's ID to the investor data.
-    investorData.user = user;
-    // Create the investor.
-    await this.investorService.create(investorData);
-    // Return a success message.
+    await this.investorService.create(userId, investorData);
     return { message: 'Investor created successfully' };
+  }
+
+  @Get()
+  findAll(@Req() request: Request) {
+    const userId = this.getUserIdFromToken(request.headers['authorization']);
+    return this.investorService.findAll(userId);
+  }
+
+  // // In InvestorsController
+  // @Get()
+  // findAll() {
+  //   return this.investorService.findAll();
+  // }
+
+  // @Get()
+  // findAll(@Query('userId') userId: number) {
+  //   return this.investorService.findAll(userId);
+  // }
+
+  @Get(':id')
+  findOne(@Param('id') id: number) {
+    return this.investorService.findOne(id);
   }
 
   // other methods...

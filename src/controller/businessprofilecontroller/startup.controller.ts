@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, Req, UnauthorizedException, Get, Param, Query } from '@nestjs/common';
 import { StartupService } from 'src/service/businessprofileservice/startup.service';
 import { Startup } from 'src/entities/businessprofileentities/startup.entity';
 import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
@@ -31,18 +31,34 @@ export class StartupsController {
   }
 
   @Post('create')
-    async create(@Req() request: Request, @Body() startupData: Startup): Promise<any> {
-    // Extract the user's ID from the JWT in the Authorization header.
+  async create(@Req() request: Request, @Body() startupData: Startup): Promise<any> {
     const userId = this.getUserIdFromToken(request.headers['authorization']);
-    // Fetch the user from the database.
-    const user = await this.userService.findById(userId);
-    // Add the user to the startup data.
-    startupData.user = user;
-    // Create the startup.
-    await this.startupService.create(startupData);
-    // Return a success message.
+    await this.startupService.create(userId, startupData);
     return { message: 'Startup created successfully' };
-    }
+  }
+
+  @Get()
+  findAll(@Req() request: Request) {
+    const userId = this.getUserIdFromToken(request.headers['authorization']);
+    return this.startupService.findAll(userId);
+  }
+
+    // In StartupsController
+  // @Get()
+  // findAll() {
+  //   return this.startupService.findAll();
+  // }
+
+  // @Get()
+  // findAll(@Query('userId') userId: number) {
+  //   return this.startupService.findAll(userId);
+  // }
+
+  @Get(':id')
+  findOne(@Param('id') id: number) {
+    return this.startupService.findOne(id);
+  }
+
 
   // other methods...
 }
