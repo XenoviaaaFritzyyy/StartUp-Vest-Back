@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Startup } from 'src/entities/businessprofileentities/startup.entity';
@@ -24,6 +24,17 @@ export class StartupService {
   // async findAll(userId: number): Promise<Startup[]> {
   //   return this.startupsRepository.find({ where: { user: { id: userId } } });
   // }
+
+  async update(userId: number, id: number, startupData: Startup): Promise<void> {
+    // Ensure the startup exists and belongs to the user
+    const startup = await this.startupsRepository.findOne({ where: { id, user: { id: userId } } });
+    if (!startup) {
+      throw new NotFoundException('Startup not found');
+    }
+  
+    // Update the startup
+    await this.startupsRepository.update(id, startupData);
+  }
 
   async findOne(id: number): Promise<Startup> {
     return this.startupsRepository.findOne({ where: { id } });

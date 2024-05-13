@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UnauthorizedException, Get, Param, Query } from '@nestjs/common';
+import { Controller, Post, Body, Req, UnauthorizedException, Get, Param, Query, Put } from '@nestjs/common';
 import { InvestorService } from 'src/service/businessprofileservice/investor.service';
 import { Investor } from 'src/entities/businessprofileentities/investor.entity';
 import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
@@ -57,6 +57,13 @@ export class InvestorsController {
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.investorService.findOne(id);
+  }
+
+  @Put(':id')
+  async update(@Param('id') id: number, @Body() investorData: Investor, @Req() request: Request): Promise<any> {
+    const userId = this.getUserIdFromToken(request.headers['authorization']);
+    await this.investorService.update(userId, id, investorData);
+    return { message: 'Investor updated successfully' };
   }
 
   // other methods...

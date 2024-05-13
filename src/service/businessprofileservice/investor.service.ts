@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Investor } from 'src/entities/businessprofileentities/investor.entity';
@@ -6,6 +6,7 @@ import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
 
 @Injectable()
 export class InvestorService {
+  [x: string]: any;
   constructor(
     @InjectRepository(Investor)
     private investorsRepository: Repository<Investor>,
@@ -36,6 +37,17 @@ export class InvestorService {
 
   async findAll(userId: number): Promise<Investor[]> {
     return this.investorsRepository.find({ where: { user: { id: userId } } });
+  }
+
+  async update(userId: number, id: number, investorData: Investor): Promise<void> {
+    // Ensure the investor exists and belongs to the user
+    const investor = await this.investorsRepository.findOne({ where: { id, user: { id: userId } } });
+    if (!investor) {
+      throw new NotFoundException('Investor not found');
+    }
+
+    // Update the investor
+    await this.investorsRepository.update(id, investorData);
   }
 
   // other methods...
