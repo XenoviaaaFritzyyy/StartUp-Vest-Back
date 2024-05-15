@@ -27,7 +27,7 @@ export class StartupService {
 
   async update(userId: number, id: number, startupData: Startup): Promise<void> {
     // Ensure the startup exists and belongs to the user
-    const startup = await this.startupsRepository.findOne({ where: { id, user: { id: userId } } });
+    const startup = await this.startupsRepository.findOne({ where: { id, user: { id: userId }, isDeleted: false } });
     if (!startup) {
       throw new NotFoundException('Startup not found');
     }
@@ -37,18 +37,25 @@ export class StartupService {
   }
 
   async findOne(id: number): Promise<Startup> {
-    return this.startupsRepository.findOne({ where: { id } });
+    return this.startupsRepository.findOne({ where: { id, isDeleted: false } });
   }
 
   async create(userId: number, startupData: Startup): Promise<Startup> {
-    const startup = this.startupsRepository.create({ ...startupData, user: { id: userId } });
+    const startup = this.startupsRepository.create({ ...startupData, user: { id: userId }, isDeleted: false });
     return this.startupsRepository.save(startup);
   }
 
   async findAll(userId: number): Promise<Startup[]> {
-    return this.startupsRepository.find({ where: { user: { id: userId } } });
+    return this.startupsRepository.find({ where: { user: { id: userId }, isDeleted: false  } });
   }
 
+  async delete(userId: number, id: number): Promise<void> {
+    const startup = await this.startupsRepository.findOne({ where: { id, user: { id: userId }, isDeleted: false } });
+    if (!startup) {
+      throw new NotFoundException('Startup not found');
+    }
+    await this.startupsRepository.update(id, { isDeleted: true });
+  }
 
   // other methods...
 }

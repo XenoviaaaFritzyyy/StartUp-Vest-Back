@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UnauthorizedException, Get, Param, Query, Put } from '@nestjs/common';
+import { Controller, Post, Body, Req, UnauthorizedException, Get, Param, Query, Put, Delete } from '@nestjs/common';
 import { StartupService } from 'src/service/businessprofileservice/startup.service';
 import { Startup } from 'src/entities/businessprofileentities/startup.entity';
 import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
@@ -66,5 +66,11 @@ export class StartupsController {
     return { message: 'Startup updated successfully' };
   }  
 
+  @Delete(':id')
+  async delete(@Param('id') id: number, @Req() request: Request): Promise<any> {
+    const userId = this.getUserIdFromToken(request.headers['authorization']);
+    await this.startupService.delete(userId, id);
+    return { message: 'Startup deleted successfully' };
+  }
   // other methods...
 }

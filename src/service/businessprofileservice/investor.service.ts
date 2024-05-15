@@ -27,7 +27,7 @@ export class InvestorService {
   // }
 
   async findOne(id: number): Promise<Investor> {
-    return this.investorsRepository.findOne({ where: { id } });
+    return this.investorsRepository.findOne({ where: { id, isDeleted: false } });
   }
 
   async create(userId: number, investorData: Investor): Promise<Investor> {
@@ -36,18 +36,27 @@ export class InvestorService {
   }
 
   async findAll(userId: number): Promise<Investor[]> {
-    return this.investorsRepository.find({ where: { user: { id: userId } } });
+    return this.investorsRepository.find({ where: { user: { id: userId }, isDeleted: false } });
   }
 
   async update(userId: number, id: number, investorData: Investor): Promise<void> {
     // Ensure the investor exists and belongs to the user
-    const investor = await this.investorsRepository.findOne({ where: { id, user: { id: userId } } });
+    const investor = await this.investorsRepository.findOne({ where: { id, user: { id: userId }, isDeleted: false } });
     if (!investor) {
       throw new NotFoundException('Investor not found');
     }
 
     // Update the investor
     await this.investorsRepository.update(id, investorData);
+  }
+
+  async delete(userId: number, id: number): Promise<void> {
+    const investor = await this.investorsRepository.findOne({ where: { id, user: { id: userId }, isDeleted: false } });
+    if (!investor) {
+      throw new NotFoundException('Investor not found');
+    }
+    investor.isDeleted = true;
+    await this.investorsRepository.save(investor);
   }
 
   // other methods...

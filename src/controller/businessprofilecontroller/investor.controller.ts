@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UnauthorizedException, Get, Param, Query, Put } from '@nestjs/common';
+import { Controller, Post, Body, Req, UnauthorizedException, Get, Param, Query, Put, Delete } from '@nestjs/common';
 import { InvestorService } from 'src/service/businessprofileservice/investor.service';
 import { Investor } from 'src/entities/businessprofileentities/investor.entity';
 import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
@@ -66,5 +66,11 @@ export class InvestorsController {
     return { message: 'Investor updated successfully' };
   }
 
+  @Delete(':id')
+  async delete(@Param('id') id: number, @Req() request: Request): Promise<any> {
+    const userId = this.getUserIdFromToken(request.headers['authorization']);
+    await this.investorService.delete(userId, id);
+    return { message: 'Investor deleted successfully' };
+  }
   // other methods...
 }
