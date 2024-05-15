@@ -25,17 +25,6 @@ export class StartupService {
   //   return this.startupsRepository.find({ where: { user: { id: userId } } });
   // }
 
-  async update(userId: number, id: number, startupData: Startup): Promise<void> {
-    // Ensure the startup exists and belongs to the user
-    const startup = await this.startupsRepository.findOne({ where: { id, user: { id: userId } } });
-    if (!startup) {
-      throw new NotFoundException('Startup not found');
-    }
-  
-    // Update the startup
-    await this.startupsRepository.update(id, startupData);
-  }
-
   async findOne(id: number): Promise<Startup> {
     return this.startupsRepository.findOne({ where: { id } });
   }

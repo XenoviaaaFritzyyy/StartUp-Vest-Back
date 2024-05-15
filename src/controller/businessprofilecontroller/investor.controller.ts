@@ -69,12 +69,5 @@ export class InvestorsController {
     return this.investorService.update(Number(id), investorData);
   }
 
-  @Put(':id')
-  async update(@Param('id') id: number, @Body() investorData: Investor, @Req() request: Request): Promise<any> {
-    const userId = this.getUserIdFromToken(request.headers['authorization']);
-    await this.investorService.update(userId, id, investorData);
-    return { message: 'Investor updated successfully' };
-  }
-
   // other methods...
 }
