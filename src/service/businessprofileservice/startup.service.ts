@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Startup } from 'src/entities/businessprofileentities/startup.entity';
@@ -35,9 +35,25 @@ export class StartupService {
   }
 
   async findAll(userId: number): Promise<Startup[]> {
-    return this.startupsRepository.find({ where: { user: { id: userId } } });
+    return this.startupsRepository.find({ where: { user: { id: userId }, isDeleted: false } });
   }
 
+  async update(id: number, startupData: Partial<Startup>): Promise<Startup> {
+    const existingStartup = await this.findOne(id);
+    if (!existingStartup) {
+      throw new NotFoundException('Startup not found');
+    }
+    const updatedStartup = await this.startupsRepository.save({ ...existingStartup, ...startupData });
+    return updatedStartup;
+  }
+
+  async softDelete(id: number): Promise<void> {
+    const existingStartup = await this.findOne(id);
+    if (!existingStartup) {
+        throw new NotFoundException('Startup not found');
+    }
+    await this.startupsRepository.update(id, { isDeleted: true });
+  }
 
   // other methods...
 }

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UnauthorizedException, Get, Param, Query } from '@nestjs/common';
+import { Controller, Post, Body, Req, UnauthorizedException, Get, Param, Query, Put } from '@nestjs/common';
 import { StartupService } from 'src/service/businessprofileservice/startup.service';
 import { Startup } from 'src/entities/businessprofileentities/startup.entity';
 import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
@@ -54,9 +54,30 @@ export class StartupsController {
   //   return this.startupService.findAll(userId);
   // }
 
+  // @Get(':id')
+  // findOne(@Param('id') id: number) {
+  //   return this.startupService.findOne(id);
+  // }
+
+  // @Get(':id')
+  // async findOne(@Param('id') id: string): Promise<Startup> {
+  //   return this.startupService.findOne(Number(id));
+  // }
+
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.startupService.findOne(id);
+  findOne(@Param('id') id: string): Promise<Startup> {
+    // Your code here
+    return this.startupService.findOne(Number(id));
+  }
+
+  @Put(':id')
+  async update(@Param('id') id: number, @Body() startupData: Startup): Promise<Startup> {
+    return this.startupService.update(Number(id), startupData);
+  }
+
+  @Put(':id/delete')
+  async softDelete(@Param('id') id: number): Promise<void> {
+      return this.startupService.softDelete(Number(id));
   }
 
 

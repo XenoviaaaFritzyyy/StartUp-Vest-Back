@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UnauthorizedException, Get, Param, Query } from '@nestjs/common';
+import { Controller, Post, Body, Req, UnauthorizedException, Get, Param, Query, Put } from '@nestjs/common';
 import { InvestorService } from 'src/service/businessprofileservice/investor.service';
 import { Investor } from 'src/entities/businessprofileentities/investor.entity';
 import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
@@ -54,9 +54,19 @@ export class InvestorsController {
   //   return this.investorService.findAll(userId);
   // }
 
+  // @Get(':id')
+  // findOne(@Param('id') id: number) {
+  //   return this.investorService.findOne(id);
+  // }
+
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.investorService.findOne(id);
+  async findOne(@Param('id') id: string): Promise<Investor> {
+    return this.investorService.findOne(Number(id));
+  }
+
+  @Put(':id')
+  async update(@Param('id') id: number, @Body() investorData: Investor): Promise<Investor> {
+    return this.investorService.update(Number(id), investorData);
   }
 
   // other methods...

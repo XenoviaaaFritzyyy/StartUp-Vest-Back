@@ -21,7 +21,7 @@ export class Investor {
   @Column({ length: 500 })
   gender: string;
 
-  @Column({ length: 500 })
+  @Column({ length: 1000 })
   biography: string;
 
   @Column({ length: 500 })

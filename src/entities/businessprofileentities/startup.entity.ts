@@ -61,6 +61,9 @@ export class Startup {
   @Column({ length: 500 })
   linkedIn: string;
 
+  @Column({ default: false })
+  isDeleted: boolean;
+
   @ManyToOne(() => User, user => user.startups)
   user: User;
 }
