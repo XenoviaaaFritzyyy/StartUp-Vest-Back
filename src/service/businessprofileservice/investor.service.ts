@@ -6,6 +6,7 @@ import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
 
 @Injectable()
 export class InvestorService {
+  [x: string]: any;
   constructor(
     @InjectRepository(Investor)
     private investorsRepository: Repository<Investor>,

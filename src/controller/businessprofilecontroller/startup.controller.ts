@@ -80,6 +80,12 @@ export class StartupsController {
       return this.startupService.softDelete(Number(id));
   }
 
+  @Put(':id')
+  async update(@Param('id') id: number, @Body() startupData: Startup, @Req() request: Request): Promise<any> {
+    const userId = this.getUserIdFromToken(request.headers['authorization']);
+    await this.startupService.update(userId, id, startupData);
+    return { message: 'Startup updated successfully' };
+  }  
 
   // other methods...
 }
