@@ -9,13 +9,13 @@ export class StartupsController {
   constructor(
     private readonly startupService: StartupService,
     private readonly userService: UserService, // inject UserService
-  ) {}
+  ) { }
 
   private getUserIdFromToken(authorizationHeader?: string): number {
     console.log('Authorization Header:', authorizationHeader);
 
     if (!authorizationHeader) {
-        throw new UnauthorizedException('Authorization header is required');
+      throw new UnauthorizedException('Authorization header is required');
     }
 
     // Replace 'Bearer ' with an empty string to get the JWT.
@@ -35,7 +35,7 @@ export class StartupsController {
     const userId = this.getUserIdFromToken(request.headers['authorization']);
     await this.startupService.create(userId, startupData);
     return { message: 'Startup created successfully' };
-  }
+    }
 
   @Get()
   findAll(@Req() request: Request) {
@@ -43,7 +43,7 @@ export class StartupsController {
     return this.startupService.findAll(userId);
   }
 
-    // In StartupsController
+  // In StartupsController
   // @Get()
   // findAll() {
   //   return this.startupService.findAll();
@@ -53,22 +53,6 @@ export class StartupsController {
   // findAll(@Query('userId') userId: number) {
   //   return this.startupService.findAll(userId);
   // }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: number) {
-  //   return this.startupService.findOne(id);
-  // }
-
-  // @Get(':id')
-  // async findOne(@Param('id') id: string): Promise<Startup> {
-  //   return this.startupService.findOne(Number(id));
-  // }
-
-  @Get(':id')
-  findOne(@Param('id') id: string): Promise<Startup> {
-    // Your code here
-    return this.startupService.findOne(Number(id));
-  }
 
   @Put(':id')
   async update(@Param('id') id: number, @Body() startupData: Startup): Promise<Startup> {

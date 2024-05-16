@@ -9,13 +9,13 @@ export class InvestorsController {
   constructor(
     private readonly investorService: InvestorService,
     private readonly userService: UserService, // inject UserService
-  ) {}
+  ) { }
 
   private getUserIdFromToken(authorizationHeader?: string): number {
     console.log('Authorization Header:', authorizationHeader);
 
     if (!authorizationHeader) {
-        throw new UnauthorizedException('Authorization header is required');
+      throw new UnauthorizedException('Authorization header is required');
     }
 
     // Replace 'Bearer ' with an empty string to get the JWT.
@@ -38,10 +38,38 @@ export class InvestorsController {
   }
 
   @Get()
-  findAll(@Req() request: Request) {
+  findAllCreatedUser(@Req() request: Request) {
     const userId = this.getUserIdFromToken(request.headers['authorization']);
-    return this.investorService.findAll(userId);
+
+    return this.investorService.findAllCreatedUser(userId);
   }
+
+  @Get(':userId/ids')
+  async getInvestorIds(@Param('userId') userId: number): Promise<number[]> {
+    return this.investorService.getInvestorIds(userId);
+  }
+  // // In InvestorsController
+  @Get('All')
+  findAll() {
+    return this.investorService.findAll();
+  }
+
+  // @Get()
+  // findAll(@Query('userId') userId: number) {
+  //   return this.investorService.findAll(userId);
+  // }
+  @Get('by-ids')
+  async getInvestorsByIds(@Query('ids') ids: string): Promise<Investor[]> {
+    const idArray = ids.split(',').map(id => parseInt(id, 10));
+    return this.investorService.findByIds(idArray);
+  }
+
+
+  @Get(':ids')
+  findByIds(@Param('id') ids: number[]) {
+    return this.investorService.findByIds(ids);
+  }
+
 
   // // In InvestorsController
   // @Get()

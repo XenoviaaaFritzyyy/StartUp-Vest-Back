@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Investor } from 'src/entities/businessprofileentities/investor.entity';
 import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
+import { In } from 'typeorm';
 
 @Injectable()
 export class InvestorService {
@@ -10,7 +11,7 @@ export class InvestorService {
   constructor(
     @InjectRepository(Investor)
     private investorsRepository: Repository<Investor>,
-  ) {}
+  ) { }
 
   // async create(investorData: Investor): Promise<Investor> {
   //   const investor = this.investorsRepository.create(investorData);
@@ -18,13 +19,22 @@ export class InvestorService {
   // }
 
   // // In InvestorService
-  // // async findAll(): Promise<Investor[]> {
-  // //   return this.investorsRepository.find();
-  // // }
+  async findAll(): Promise<Investor[]> {
+    return this.investorsRepository.find();
+  }
 
   // async findAll(userId: number): Promise<Investor[]> {
   //   return this.investorsRepository.find({ where: { user: { id: userId } } });
   // }
+  async findByIds(ids: number[]): Promise<Investor[]> {
+    console.log('findByIds received ids:', ids);
+    if (ids.length === 0) {
+      return [];
+    }
+    const investors = await this.investorsRepository.find({ where: { id: In(ids) } });
+    console.log('Fetched investors from DB:', investors);
+    return investors;
+  }
 
   async findOne(id: number): Promise<Investor> {
     return this.investorsRepository.findOne({ where: { id } });
@@ -35,9 +45,20 @@ export class InvestorService {
     return this.investorsRepository.save(investor);
   }
 
-  async findAll(userId: number): Promise<Investor[]> {
+  async findAllCreatedUser(userId: number): Promise<Investor[]> {
     return this.investorsRepository.find({ where: { user: { id: userId } } });
   }
+
+ 
+
+  // async getInvestorIds(userId: number): Promise<number[]> {
+  //   const investors = await this.findAll(userId);
+  //   const ids = investors.map(investor => investor.id);
+  //   console.log(ids);
+  //   return ids;
+  // }
+
+
 
   async update(id: number, investorData: Partial<Investor>): Promise<Investor> {
     const existingInvestor = await this.findOne(id);
