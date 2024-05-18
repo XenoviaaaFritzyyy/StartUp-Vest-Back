@@ -19,9 +19,9 @@ export class InvestorService {
   // }
 
   // // In InvestorService
-  async findAll(): Promise<Investor[]> {
-    return this.investorsRepository.find();
-  }
+  // async findAll(): Promise<Investor[]> {
+  //   return this.investorsRepository.find();
+  // }
 
   // async findAll(userId: number): Promise<Investor[]> {
   //   return this.investorsRepository.find({ where: { user: { id: userId } } });
@@ -51,8 +51,6 @@ export class InvestorService {
   async findAllInvestors(): Promise<Investor[]> {
     return this.investorsRepository.find();
   }
-
- 
 
   // async getInvestorIds(userId: number): Promise<number[]> {
   //   const investors = await this.findAll(userId);
