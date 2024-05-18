@@ -38,6 +38,9 @@ export class InvestorService {
   async findAll(userId: number): Promise<Investor[]> {
     return this.investorsRepository.find({ where: { user: { id: userId } } });
   }
+  async findAllInvestors(): Promise<Investor[]> {
+    return this.investorsRepository.find();
+  }
 
   async update(id: number, investorData: Partial<Investor>): Promise<Investor> {
     const existingInvestor = await this.findOne(id);

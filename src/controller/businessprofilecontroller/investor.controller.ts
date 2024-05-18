@@ -43,6 +43,11 @@ export class InvestorsController {
     return this.investorService.findAll(userId);
   }
 
+  @Get('all')
+  async findAllInvestors(): Promise<Investor[]> {
+    return this.investorService.findAllInvestors();
+  }
+
   // // In InvestorsController
   // @Get()
   // findAll() {
