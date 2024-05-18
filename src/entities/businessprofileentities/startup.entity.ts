@@ -1,6 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
 import { User } from 'src/entities/user.entity';
-// import { User } from 'src/entity/user.entity';
+import { StartupProfilePicture } from '../profilepictureentities/startupprofilepicture.entity';
+import { FundingRound } from '../financialentities/funding.entity';
 
 @Entity()
 export class Startup {
@@ -61,9 +62,15 @@ export class Startup {
   @Column({ length: 500 })
   linkedIn: string;
 
+  @OneToMany(() => FundingRound, fundingRound => fundingRound.startup)
+  fundingRounds: FundingRound[];
+
   @Column({ default: false })
   isDeleted: boolean;
 
   @ManyToOne(() => User, user => user.startups)
   user: User;
+
+  @OneToMany(() => StartupProfilePicture, profilePicture => profilePicture.user)
+  profilePictures: StartupProfilePicture[];
 }

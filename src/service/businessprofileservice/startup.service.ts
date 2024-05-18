@@ -9,7 +9,7 @@ export class StartupService {
   constructor(
     @InjectRepository(Startup)
     private startupsRepository: Repository<Startup>,
-  ) {}
+  ) { }
 
   // async create(startupData: Startup): Promise<Startup> {
   //   const startup = this.startupsRepository.create(startupData);
@@ -34,6 +34,7 @@ export class StartupService {
     return this.startupsRepository.save(startup);
   }
 
+
   async findAll(userId: number): Promise<Startup[]> {
     return this.startupsRepository.find({ where: { user: { id: userId }, isDeleted: false } });
   }
@@ -50,7 +51,7 @@ export class StartupService {
   async softDelete(id: number): Promise<void> {
     const existingStartup = await this.findOne(id);
     if (!existingStartup) {
-        throw new NotFoundException('Startup not found');
+      throw new NotFoundException('Startup not found');
     }
     await this.startupsRepository.update(id, { isDeleted: true });
   }

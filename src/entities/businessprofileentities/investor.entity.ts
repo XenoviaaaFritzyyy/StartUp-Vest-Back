@@ -1,6 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { User } from 'src/entities/user.entity';
-
+import { FundingRound } from '../financialentities/funding.entity';
 @Entity()
 export class Investor {
   @PrimaryGeneratedColumn()
@@ -53,6 +53,12 @@ export class Investor {
 
   @Column({ length: 500 })
   linkedIn: string;
+
+  @Column({ default: false })
+  isDeleted: boolean;
+
+  @ManyToMany(() => FundingRound)
+  fundingRounds: FundingRound[];
 
   @OneToOne(() => User)
   @JoinColumn()
