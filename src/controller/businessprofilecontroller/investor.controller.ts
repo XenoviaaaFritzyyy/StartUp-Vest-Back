@@ -97,5 +97,10 @@ export class InvestorsController {
     return this.investorService.update(Number(id), investorData);
   }
 
+  @Put(':id/delete')
+  async softDelete(@Param('id') id: number): Promise<void> {
+      return this.investorService.softDelete(Number(id));
+  }
+
   // other methods...
 }

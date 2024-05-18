@@ -69,5 +69,13 @@ export class InvestorService {
     return updatedInvestor;
   }
 
+  async softDelete(id: number): Promise<void> {
+    const existingInvestor = await this.findOne(id);
+    if (!existingInvestor) {
+        throw new NotFoundException('Investor not found');
+    }
+    await this.investorsRepository.update(id, { isDeleted: true });
+  }
+
   // other methods...
 }

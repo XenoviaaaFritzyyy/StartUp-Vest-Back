@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
 import { User } from 'src/entities/user.entity';
+import { StartupProfilePicture } from '../profilepictureentities/startupprofilepicture.entity';
 import { FundingRound } from '../financialentities/funding.entity';
 
 @Entity()
@@ -69,4 +70,7 @@ export class Startup {
 
   @ManyToOne(() => User, user => user.startups)
   user: User;
+
+  @OneToMany(() => StartupProfilePicture, profilePicture => profilePicture.user)
+  profilePictures: StartupProfilePicture[];
 }

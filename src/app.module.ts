@@ -8,6 +8,8 @@ import { Startup } from './entities/businessprofileentities/startup.entity';
 import { Investor } from './entities/businessprofileentities/investor.entity';
 import { StartupModule } from './module/businessprofilemodule/startup.module';
 import { InvestorModule } from './module/businessprofilemodule/investor.module';
+import { ProfilePictureModule } from './module/profilepicturemodule/profilepicture.module';
+import { ProfilePicture } from './entities/profilepictureentities/profilepicture.entity';
 
 
 
@@ -20,10 +22,10 @@ import { InvestorModule } from './module/businessprofilemodule/investor.module';
       username: 'root',
       password: 'JBiong213940981.',
       database: 'startupvest',
-      entities: [User, Startup, Investor],
+      entities: [User, Startup, Investor, ProfilePicture],
       synchronize: true,
     }),
-    AuthModule,
+    ProfilePictureModule,
     UsersModule,
     StartupModule,
     InvestorModule

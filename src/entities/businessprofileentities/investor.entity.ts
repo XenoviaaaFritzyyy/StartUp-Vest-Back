@@ -54,6 +54,9 @@ export class Investor {
   @Column({ length: 500 })
   linkedIn: string;
 
+  @Column({ default: false })
+  isDeleted: boolean;
+
   @ManyToMany(() => FundingRound)
   fundingRounds: FundingRound[];
 
