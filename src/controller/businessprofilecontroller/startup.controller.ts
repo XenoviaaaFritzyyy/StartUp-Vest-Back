@@ -35,7 +35,7 @@ export class StartupsController {
     const userId = this.getUserIdFromToken(request.headers['authorization']);
     await this.startupService.create(userId, startupData);
     return { message: 'Startup created successfully' };
-    }
+  }
 
   @Get()
   findAll(@Req() request: Request) {
@@ -61,7 +61,7 @@ export class StartupsController {
 
   @Put(':id/delete')
   async softDelete(@Param('id') id: number): Promise<void> {
-      return this.startupService.softDelete(Number(id));
+    return this.startupService.softDelete(Number(id));
   }
 
 

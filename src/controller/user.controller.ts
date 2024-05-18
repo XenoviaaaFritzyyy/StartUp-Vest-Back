@@ -6,7 +6,7 @@ import * as jwt from 'jsonwebtoken'; // Import jsonwebtoken
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Post('register')
   async create(@Body() userData: User): Promise<void> {
@@ -69,7 +69,7 @@ export class UsersController {
     console.log('Authorization Header:', authorizationHeader);
 
     if (!authorizationHeader) {
-        throw new UnauthorizedException('Authorization header is required');
+      throw new UnauthorizedException('Authorization header is required');
     }
 
     // Replace 'Bearer ' with an empty string to get the JWT.

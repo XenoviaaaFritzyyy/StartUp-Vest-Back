@@ -34,10 +34,10 @@ export class FundingRoundService {
 
 
   async findById(id: number): Promise<FundingRound> {
-    const fundingRound = await this.fundingRoundRepository.findOne({ where: { id } });
-    if (!fundingRound) {
-      throw new NotFoundException('Funding round not found');
-    }
-    return fundingRound;
+    return this.fundingRoundRepository.findOne({ where: { id }, relations: ['startup'] });
+  }
+
+  async findAll(): Promise<FundingRound[]> {
+    return this.fundingRoundRepository.find({ relations: ['startup'] });
   }
 }
