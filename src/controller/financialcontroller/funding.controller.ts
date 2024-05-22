@@ -18,21 +18,21 @@ export class FundingRoundController {
     private readonly fundingRoundService: FundingRoundService
   ) { }
 
-  private getUserIdFromToken(authorizationHeader?: string): number {
-    console.log('Authorization Header:', authorizationHeader);
+  // private getUserIdFromToken(authorizationHeader?: string): number {
+  //   console.log('Authorization Header:', authorizationHeader);
 
-    if (!authorizationHeader) {
-      throw new UnauthorizedException('Authorization header is required');
-    }
+  //   if (!authorizationHeader) {
+  //     throw new UnauthorizedException('Authorization header is required');
+  //   }
 
-    const token = authorizationHeader.replace('Bearer ', '');
-    console.log('Token:', token);
+  //   const token = authorizationHeader.replace('Bearer ', '');
+  //   console.log('Token:', token);
 
-    const payload = jwt.verify(token, 'secretKey');
-    console.log('Payload:', payload);
+  //   const payload = jwt.verify(token, 'secretKey');
+  //   console.log('Payload:', payload);
 
-    return payload.userId;
-  }
+  //   return payload.userId;
+  // }
 
   @Get('by-ids')
   async getInvestorsByIds(@Query('ids') ids: string): Promise<Investor[]> {
