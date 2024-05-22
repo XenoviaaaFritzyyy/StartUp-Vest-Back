@@ -36,5 +36,6 @@ export class FundingRound {
   @JoinTable()
   investors: Investor[];
   
-
+  @Column({ default: false })
+  isDeleted: boolean;
 }
