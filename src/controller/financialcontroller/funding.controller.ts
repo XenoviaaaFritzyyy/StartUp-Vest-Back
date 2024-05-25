@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, NotFoundException, UnauthorizedException, Req, InternalServerErrorException, HttpException, HttpStatus, Logger, Query } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, NotFoundException, UnauthorizedException, Req, InternalServerErrorException, HttpException, HttpStatus, Logger, Query, Put, Delete } from '@nestjs/common';
 import { FundingRoundService } from 'src/service/financialservice/funding.service';
 import { FundingRound } from 'src/entities/financialentities/funding.entity';
 import { StartupService } from 'src/service/businessprofileservice/startup.service';
@@ -18,21 +18,21 @@ export class FundingRoundController {
     private readonly fundingRoundService: FundingRoundService
   ) { }
 
-  private getUserIdFromToken(authorizationHeader?: string): number {
-    console.log('Authorization Header:', authorizationHeader);
+  // private getUserIdFromToken(authorizationHeader?: string): number {
+  //   console.log('Authorization Header:', authorizationHeader);
 
-    if (!authorizationHeader) {
-      throw new UnauthorizedException('Authorization header is required');
-    }
+  //   if (!authorizationHeader) {
+  //     throw new UnauthorizedException('Authorization header is required');
+  //   }
 
-    const token = authorizationHeader.replace('Bearer ', '');
-    console.log('Token:', token);
+  //   const token = authorizationHeader.replace('Bearer ', '');
+  //   console.log('Token:', token);
 
-    const payload = jwt.verify(token, 'secretKey');
-    console.log('Payload:', payload);
+  //   const payload = jwt.verify(token, 'secretKey');
+  //   console.log('Payload:', payload);
 
-    return payload.userId;
-  }
+  //   return payload.userId;
+  // }
 
   @Get('by-ids')
   async getInvestorsByIds(@Query('ids') ids: string): Promise<Investor[]> {
@@ -62,6 +62,7 @@ export class FundingRoundController {
       throw new HttpException('Failed to create funding round', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
   @Get('all')
   async findAll() {
     try {
@@ -84,6 +85,19 @@ export class FundingRoundController {
     return fundingRound;
   }
 
+  @Put(':id')
+  async updateFundingRound(
+    @Param('id') id: number,
+    @Body() updateData: Partial<FundingRound>,
+  ): Promise<FundingRound> {
+    const investorIds = updateData.investors?.map(investor => investor.id) || [];
+    return this.fundingRoundService.update(id, updateData, investorIds);
+  }
 
+  @Delete(':id')
+  async softDeleteFundingRound(@Param('id') id: number): Promise<void> {
+    return this.fundingRoundService.softDelete(id);
+  }
+  
 }
 

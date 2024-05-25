@@ -12,6 +12,8 @@ import { FundingRound } from './entities/financialentities/funding.entity';
 import { FundingModule } from './module/financialmodule/funding.module';
 import { ProfilePictureModule } from './module/profilepicturemodule/profilepicture.module';
 import { ProfilePicture } from './entities/profilepictureentities/profilepicture.entity';
+import { CapTable } from './entities/financialentities/cap.entity';
+import { CapTableInvestor } from './entities/financialentities/capInvestor.entity';
 
 
 
@@ -24,8 +26,9 @@ import { ProfilePicture } from './entities/profilepictureentities/profilepicture
       username: 'root',
       password: 'JBiong213940981.',
       database: 'startupvest',
-      entities: [User, Startup, Investor,FundingRound, ProfilePicture],
+      entities: [User, Startup, Investor,FundingRound, ProfilePicture,CapTable,CapTableInvestor],
       synchronize: true,
+      // logging:true
     }),
     ProfilePictureModule,
     UsersModule,

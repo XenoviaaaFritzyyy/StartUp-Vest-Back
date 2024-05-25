@@ -32,12 +32,46 @@ export class FundingRoundService {
     return this.fundingRoundRepository.save(funding);
   }
 
-
   async findById(id: number): Promise<FundingRound> {
-    return this.fundingRoundRepository.findOne({ where: { id }, relations: ['startup'] });
+    const fundingRound = await this.fundingRoundRepository.findOne({
+      where: { id, isDeleted: false },
+      relations: ['startup'],
+    });
+    if (!fundingRound) {
+      throw new NotFoundException('Funding round not found');
+    }
+    return fundingRound;
   }
 
   async findAll(): Promise<FundingRound[]> {
-    return this.fundingRoundRepository.find({ relations: ['startup'] });
+    return this.fundingRoundRepository.find({
+      where: { isDeleted: false },
+      relations: ['startup'],
+    });
   }
+
+  async update(id: number, updateData: Partial<FundingRound>, investorIds: number[]): Promise<FundingRound> {
+    const fundingRound = await this.findById(id);
+    if (!fundingRound) {
+      throw new NotFoundException('Funding round not found');
+    }
+
+    const investors = await this.investorService.findByIds(investorIds);
+    const updatedFundingRound = Object.assign(fundingRound, updateData, { investors });
+
+    return this.fundingRoundRepository.save(updatedFundingRound);
+  }
+  
+  async softDelete(id: number): Promise<void> {
+    const fundingRound = await this.fundingRoundRepository.findOne({ where: { id } });
+
+    if (!fundingRound) {
+      throw new NotFoundException('Funding round not found');
+    }
+
+    fundingRound.isDeleted = true;
+
+    await this.fundingRoundRepository.save(fundingRound);
+  }
+
 }
