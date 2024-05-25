@@ -40,4 +40,73 @@ export class ProfilePictureController {
     }
 
   // ... other endpoints ...
+
+  @Post('startup/:startupId/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadStartupProfilePicture(@Param('startupId') startupId: number, @UploadedFile() file: Express.Multer.File) {
+    const pictureData = file.buffer;
+    await this.profilePictureService.addProfilePictureToStartup(startupId, pictureData);
+  }
+
+  @Post('investor/:investorId/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadInvestorProfilePicture(@Param('investorId') investorId: number, @UploadedFile() file: Express.Multer.File) {
+    const pictureData = file.buffer;
+    await this.profilePictureService.addProfilePictureToInvestor(investorId, pictureData);
+  }
+
+  @Get('startup/:startupId')
+  async getStartupProfilePicture(@Param('startupId') startupId: number, @Res() res: Response) {
+    const profilePicture = await this.profilePictureService.findProfilePictureForStartup(startupId);
+    if (profilePicture) {
+      res.set('Content-Type', 'image/jpeg'); // Set the correct content type for your image
+      res.send(profilePicture.data);
+    } else {
+      res.status(404).send('Profile picture not found');
+    }
+  }
+
+  @Get('investor/:investorId')
+  async getInvestorProfilePicture(@Param('investorId') investorId: number, @Res() res: Response) {
+    const profilePicture = await this.profilePictureService.findProfilePictureForInvestor(investorId);
+    if (profilePicture) {
+      res.set('Content-Type', 'image/jpeg'); // Set the correct content type for your image
+      res.send(profilePicture.data);
+    } else {
+      res.status(404).send('Profile picture not found');
+    }
+  }
+
+  @Put('startup/:startupId/update')
+  @UseInterceptors(FileInterceptor('file'))
+  async updateStartupProfilePicture(
+    @Param('startupId') startupId: number,
+    @UploadedFile() file: Express.Multer.File,
+    @Res() res: Response
+  ) {
+    try {
+      const pictureData = file.buffer;
+      const updatedProfilePicture = await this.profilePictureService.updateProfilePictureToStartup(startupId, pictureData);
+      res.json(updatedProfilePicture);
+    } catch (error) {
+      res.status(500).send('Error updating profile picture');
+    }
+  }
+
+  @Put('investor/:investorId/update')
+  @UseInterceptors(FileInterceptor('file'))
+  async updateInvestorProfilePicture(
+    @Param('investorId') investorId: number,
+    @UploadedFile() file: Express.Multer.File,
+    @Res() res: Response
+  ) {
+    try {
+      const pictureData = file.buffer;
+      const updatedProfilePicture = await this.profilePictureService.updateProfilePictureToInvestor(investorId, pictureData);
+      res.json(updatedProfilePicture);
+    } catch (error) {
+      res.status(500).send('Error updating profile picture');
+    }
+  }
+
 }

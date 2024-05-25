@@ -1,7 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 import { User } from 'src/entities/user.entity';
-import { StartupProfilePicture } from '../profilepictureentities/startupprofilepicture.entity';
+// import { StartupProfilePicture } from '../profilepictureentities/startupprofilepicture.entity';
 import { FundingRound } from '../financialentities/funding.entity';
+import { ProfilePicture } from '../profilepictureentities/profilepicture.entity';
 
 @Entity()
 export class Startup {
@@ -71,6 +72,6 @@ export class Startup {
   @ManyToOne(() => User, user => user.startups)
   user: User;
 
-  @OneToMany(() => StartupProfilePicture, profilePicture => profilePicture.user)
-  profilePictures: StartupProfilePicture[];
+  @OneToOne(() => ProfilePicture, (profilePicture) => profilePicture.startup)
+  profilePicture: ProfilePicture;
 }

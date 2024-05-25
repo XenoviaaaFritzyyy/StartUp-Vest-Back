@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { User } from 'src/entities/user.entity';
 import { FundingRound } from '../financialentities/funding.entity';
+import { ProfilePicture } from '../profilepictureentities/profilepicture.entity';
 @Entity()
 export class Investor {
   @PrimaryGeneratedColumn()
@@ -63,4 +64,7 @@ export class Investor {
   @OneToOne(() => User)
   @JoinColumn()
   user: User;
+
+  @OneToOne(() => ProfilePicture, (profilePicture) => profilePicture.investor)
+  profilePicture: ProfilePicture;
 }
