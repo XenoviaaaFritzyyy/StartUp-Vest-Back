@@ -34,6 +34,9 @@ export class StartupService {
     return this.startupsRepository.save(startup);
   }
 
+  async findAllStartups(): Promise<Startup[]> {
+    return this.startupsRepository.find({ where: { isDeleted: false } });
+  }
 
   async findAll(userId: number): Promise<Startup[]> {
     return this.startupsRepository.find({ where: { user: { id: userId }, isDeleted: false } });
