@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, NotFoundException, UnauthorizedException, Req, InternalServerErrorException, HttpException, HttpStatus, Logger, Query, Put, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, NotFoundException, UnauthorizedException, Req, InternalServerErrorException, HttpException, HttpStatus, Logger, Query, Put, Delete, ParseIntPipe } from '@nestjs/common';
 import { FundingRoundService } from 'src/service/financialservice/funding.service';
 import { FundingRound } from 'src/entities/financialentities/funding.entity';
 import { StartupService } from 'src/service/businessprofileservice/startup.service';
@@ -41,7 +41,7 @@ export class FundingRoundController {
   }
 
   @Post('createfund')
-  async createFundingRound(@Body() fundingRoundData: FundingRound): Promise<FundingRound> {
+  async createFundingRound(@Body() fundingRoundData: Partial<FundingRound>, @Body('investors') investors: Investor[], @Body('shares') shares: number[], @Body('titles') titles: string[]): Promise<FundingRound> {
     try {
       this.logger.log('Received funding round data:', JSON.stringify(fundingRoundData));
 
@@ -53,7 +53,7 @@ export class FundingRoundController {
       const investorIds = fundingRoundData.investors?.map(investor => investor.id) || [];
       this.logger.log('Extracted investor IDs:', investorIds);
 
-      const createdFunding = await this.fundingRoundService.create(startupId, fundingRoundData, investorIds);
+      const createdFunding = await this.fundingRoundService.create(startupId, fundingRoundData as FundingRound, investorIds, shares, titles);
 
       this.logger.log('Funding round created:', JSON.stringify(createdFunding));
       return createdFunding;
@@ -98,6 +98,38 @@ export class FundingRoundController {
   async softDeleteFundingRound(@Param('id') id: number): Promise<void> {
     return this.fundingRoundService.softDelete(id);
   }
-  
+
+  @Get(':id/total-money-raised')
+  async getTotalMoneyRaisedForStartup(@Param('id') startupId: number): Promise<{ totalMoneyRaised: number }> {
+    try {
+      const totalMoneyRaised = await this.fundingRoundService.getTotalMoneyRaisedForStartup(startupId);
+      return { totalMoneyRaised };
+    } catch (error) {
+      throw new NotFoundException('Startup not found or error calculating total money raised');
+    }
+  }
+
+  // @Get(':id/total-share')
+  // async getTotalShareForInvestor(@Param('id') investorId: number): Promise<{ totalShare: number }> {
+  //   try {
+  //     const totalShare = await this.fundingRoundService.getTotalShareForInvestor(investorId);
+  //     return { totalShare };
+  //   } catch (error) {
+  //     this.logger.error(`Error getting total share for investor: ${error.message}`);
+  //     throw new NotFoundException('Investor not found or error calculating total share');
+  //   }
+  // }
+  @Get(':investorId/company/:companyId/total-shares')
+  async getTotalSharesForInvestor(
+    @Param('investorId') investorId: number,
+    @Param('companyId') companyId: number,
+  ): Promise<number> {
+    return this.fundingRoundService.getTotalSharesForInvestor(investorId, companyId);
+  }
+
+  @Get('investors/:companyId')
+  async getAllInvestorData(@Param('companyId') companyId: number) {
+    return this.fundingRoundService.getAllInvestorData(companyId);
+  }
 }
 

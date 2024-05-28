@@ -3,7 +3,7 @@ import { User } from 'src/entities/user.entity';
 // import { StartupProfilePicture } from '../profilepictureentities/startupprofilepicture.entity';
 import { FundingRound } from '../financialentities/funding.entity';
 import { ProfilePicture } from '../profilepictureentities/profilepicture.entity';
-import { CapTable } from '../financialentities/cap.entity';
+
 
 @Entity()
 export class Startup {
@@ -67,8 +67,6 @@ export class Startup {
   @OneToMany(() => FundingRound, fundingRound => fundingRound.startup)
   fundingRounds: FundingRound[];
 
-  @OneToMany(() => CapTable, capTable => capTable.startup)
-  capTables: CapTable[];
 
   @Column({ default: false })
   isDeleted: boolean;

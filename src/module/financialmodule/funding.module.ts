@@ -9,22 +9,15 @@ import { Investor } from 'src/entities/businessprofileentities/investor.entity';
 import { UserService } from 'src/service/user.service';
 import { User } from 'src/entities/user.entity';
 import { InvestorService } from 'src/service/businessprofileservice/investor.service';
-import { CapTable } from 'src/entities/financialentities/cap.entity';
-import { CapTableController } from 'src/controller/financialcontroller/cap.controller';
-import { CapTableService } from 'src/service/financialservice/cap.service';
+
 import { CapTableInvestor } from 'src/entities/financialentities/capInvestor.entity';
 import { CapTableInvestorController } from 'src/controller/financialcontroller/capinvestor.controller';
 import { CapTableInvestorService } from 'src/service/financialservice/capinvestor.service';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([FundingRound]),
-    TypeOrmModule.forFeature([Investor]),
-    TypeOrmModule.forFeature([Startup]),
-    TypeOrmModule.forFeature([User]),
-    TypeOrmModule.forFeature([CapTable]),
-    TypeOrmModule.forFeature([CapTableInvestor]) // Import the Startup entity
+    TypeOrmModule.forFeature([FundingRound, Investor, Startup, User, CapTableInvestor]), // Import the Startup entity
   ],
-  controllers: [FundingRoundController,CapTableController,CapTableInvestorController],
-  providers: [FundingRoundService, StartupService,UserService,InvestorService,CapTableService,CapTableInvestorService], // Add StartupService to providers
+  controllers: [FundingRoundController, CapTableInvestorController],
+  providers: [FundingRoundService, StartupService, UserService, InvestorService, CapTableInvestorService], // Add StartupService to providers
 })
-export class FundingModule {}
+export class FundingModule { }

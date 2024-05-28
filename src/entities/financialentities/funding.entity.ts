@@ -1,6 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, ManyToMany, JoinTable, OneToMany } from 'typeorm';
 import { Startup } from '../businessprofileentities/startup.entity';
 import { Investor } from '../businessprofileentities/investor.entity';
+import { CapTableInvestor } from './capInvestor.entity';
 
 @Entity()
 export class FundingRound {
@@ -13,29 +14,33 @@ export class FundingRound {
   @Column({ length: 500 })
   announcedDate: string;
 
-  @Column({ length: 500 , nullable: true })
+  @Column({ length: 500, nullable: true })
   closedDate: string;
-
-  @Column({ type: 'decimal', precision: 20, scale: 2 })
-  moneyRaised: number;
 
   @Column({ type: 'decimal', precision: 20, scale: 2 })
   targetFunding: number;
 
   @Column({ type: 'decimal', precision: 20, scale: 2 })
   preMoneyValuation: number;
-  
+
   @Column({ length: 500 })
   moneyRaisedCurrency: string;
 
+  @Column({ default: false })
+  isDeleted: boolean;
+
+  //CAP TABLE
   @ManyToOne(() => Startup, startup => startup.fundingRounds)
-  @JoinColumn()
+  @JoinColumn({ name: 'startupId' }) // Explicitly name the foreign key column
   startup: Startup;
 
   @ManyToMany(() => Investor)
   @JoinTable()
   investors: Investor[];
-  
-  @Column({ default: false })
-  isDeleted: boolean;
+
+  @Column()
+  moneyRaised: number;
+
+  @OneToMany(() => CapTableInvestor, capTableInvestor => capTableInvestor.capTable, { cascade: true })
+  capTableInvestors: CapTableInvestor[];
 }

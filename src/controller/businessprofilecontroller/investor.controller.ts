@@ -43,7 +43,7 @@ export class InvestorsController {
 
     return this.investorService.findAllCreatedUser(userId);
   }
-  
+
   @Get('all')
   async findAllInvestors(): Promise<Investor[]> {
     return this.investorService.findAllInvestors();
@@ -104,8 +104,10 @@ export class InvestorsController {
 
   @Put(':id/delete')
   async softDelete(@Param('id') id: number): Promise<void> {
-      return this.investorService.softDelete(Number(id));
+    return this.investorService.softDelete(Number(id));
   }
+
+
 
   // other methods...
 }

@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany
 import { User } from 'src/entities/user.entity';
 import { FundingRound } from '../financialentities/funding.entity';
 import { ProfilePicture } from '../profilepictureentities/profilepicture.entity';
-import { CapTable } from '../financialentities/cap.entity';
+
 import { CapTableInvestor } from '../financialentities/capInvestor.entity';
 @Entity()
 export class Investor {
@@ -65,7 +65,7 @@ export class Investor {
 
   @OneToMany(() => CapTableInvestor, capTableInvestor => capTableInvestor.investor)
   capTableInvestors: CapTableInvestor[];
- 
+
 
   @OneToOne(() => User)
   @JoinColumn()
