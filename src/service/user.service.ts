@@ -46,4 +46,9 @@ export class UserService {
     const updatedUser = await this.usersRepository.save({ ...existingUser, ...userData });
     return updatedUser;
   }
+
+  async findAll(): Promise<User[]> {
+    return this.usersRepository.find();
+  }
+
 }

@@ -84,4 +84,8 @@ export class UsersController {
     return payload.userId;
   }
 
+  @Get('all')
+  async findAllUsers(): Promise<User[]> {
+    return this.userService.findAll();
+  }
 }
