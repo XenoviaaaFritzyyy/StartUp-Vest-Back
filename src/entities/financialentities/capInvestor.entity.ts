@@ -7,11 +7,11 @@ export class CapTableInvestor {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => FundingRound, fundingRound => fundingRound.capTableInvestors)
+  @ManyToOne(() => FundingRound, (fundingRound) => fundingRound.capTableInvestors, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'capTableId' }) // Explicitly name the foreign key column
   capTable: FundingRound;
 
-  @ManyToOne(() => Investor)
+  @ManyToOne(() => Investor, (investor) => investor.capTableInvestors, { nullable: false })
   @JoinColumn({ name: 'investorId' }) // Explicitly name the foreign key column
   investor: Investor;
 
@@ -20,4 +20,7 @@ export class CapTableInvestor {
 
   @Column()
   shares: number;
+
+  @Column({ default: false })
+  isDeleted: boolean;
 }

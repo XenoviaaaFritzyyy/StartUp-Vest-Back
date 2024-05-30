@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FundingRound } from 'src/entities/financialentities/funding.entity';
 import { InvestorService } from '../businessprofileservice/investor.service';
 import { CapTableInvestor } from 'src/entities/financialentities/capInvestor.entity';
 import { title } from 'process';
+import { Investor } from 'src/entities/businessprofileentities/investor.entity';
 
 export interface InvestorData {
   id: number;
@@ -65,14 +66,21 @@ export class FundingRoundService {
   }
 
   async findById(id: number): Promise<FundingRound> {
-    const fundingRound = await this.fundingRoundRepository.findOne({
-      where: { id, isDeleted: false },
-      relations: ['startup', 'capTableInvestors', 'capTableInvestors.investor'],
-    });
-    if (!fundingRound) {
+    try {
+      const fundingRound = await this.fundingRoundRepository.findOne({
+        where: { id, isDeleted: false },
+        relations: ['startup', 'capTableInvestors', 'capTableInvestors.investor'],
+      });
+  
+      if (!fundingRound) {
+        throw new NotFoundException('Funding round not found');
+      }
+  
+      return fundingRound;
+    } catch (error) {
+      console.error('Error finding funding round by ID:', error);
       throw new NotFoundException('Funding round not found');
     }
-    return fundingRound;
   }
 
   async findAll(): Promise<FundingRound[]> {
@@ -82,29 +90,88 @@ export class FundingRoundService {
     });
   }
 
-  async update(id: number, updateData: Partial<FundingRound>, investorIds: number[]): Promise<FundingRound> {
+  async update(
+    id: number, 
+    updateData: Partial<FundingRound>, 
+    investorData: { id: number; shares: number; title: string }[]
+  ): Promise<FundingRound> {
+    // Retrieve the existing funding round
     const fundingRound = await this.findById(id);
     if (!fundingRound) {
       throw new NotFoundException('Funding round not found');
     }
 
-    const investors = await this.investorService.findByIds(investorIds);
-    const updatedFundingRound = Object.assign(fundingRound, updateData, { investors });
+    // Update the funding round with new data
+    Object.assign(fundingRound, updateData);
 
-    return this.fundingRoundRepository.save(updatedFundingRound);
+    // Retrieve all existing cap table investors for this funding round
+    const existingCapTableInvestors = await this.capTableInvestorRepository.find({
+      where: { capTable: { id: fundingRound.id } },
+      relations: ['investor'],
+    });
+
+    const updatedCapTableInvestors = [];
+
+    // Update existing investors and add new investors
+    for (const { id: investorId, shares, title } of investorData) {
+      let capTableInvestor = existingCapTableInvestors.find(investor => investor.investor.id === investorId);
+      if (capTableInvestor) {
+        // Update existing investor shares
+        capTableInvestor.shares = shares;
+        capTableInvestor.title = title;
+      } else {
+        // Add new investor
+        capTableInvestor = this.capTableInvestorRepository.create({
+          capTable: fundingRound, // Set the capTable to the current funding round
+          investor: { id: investorId } as Investor,
+          shares: shares,
+          title: title,
+        });
+      }
+      // Add to updated investors list
+      updatedCapTableInvestors.push(capTableInvestor);
+    }
+
+    // Save all updated and new investors to the cap table
+    await this.capTableInvestorRepository.save(updatedCapTableInvestors);
+
+    // Compute the new money raised
+    fundingRound.moneyRaised = updatedCapTableInvestors.reduce((acc, investor) => acc + investor.shares, 0);
+
+    // Save the updated funding round
+    const updatedFundingRound = await this.fundingRoundRepository.save(fundingRound);
+
+    // Manually set the updated cap table investors into the updatedFundingRound for return
+    updatedFundingRound.capTableInvestors = updatedCapTableInvestors;
+
+    return updatedFundingRound;
   }
 
   async softDelete(id: number): Promise<void> {
-    const fundingRound = await this.fundingRoundRepository.findOne({ where: { id } });
-
+    const fundingRound = await this.fundingRoundRepository.findOne({
+      where: { id },
+      relations: ['capTableInvestors']
+    });
+  
     if (!fundingRound) {
       throw new NotFoundException('Funding round not found');
     }
-
+  
+    // Mark funding round as deleted
     fundingRound.isDeleted = true;
-
+  
+    // Mark all related cap table investors as deleted
+    fundingRound.capTableInvestors.forEach(investor => {
+      investor.isDeleted = true;
+    });
+  
+    // Soft delete the cap table investors
+    await this.capTableInvestorRepository.save(fundingRound.capTableInvestors);
+  
+    // Save the updated funding round
     await this.fundingRoundRepository.save(fundingRound);
   }
+  
 
   async getTotalMoneyRaisedForStartup(startupId: number): Promise<number> {
     try {
@@ -161,36 +228,38 @@ export class FundingRoundService {
     try {
       // Fetch total money raised for the company
       const totalMoneyRaised = await this.getTotalMoneyRaisedForStartup(companyId);
-
-      // Fetch all cap table investors for the specified company
+  
+      // Fetch all active cap table investors for the specified company
       const capTableInvestors = await this.capTableInvestorRepository.find({
         where: {
           capTable: { startup: { id: companyId } },
+          isDeleted: false, // Filter out soft-deleted cap table investors
         },
         relations: ['investor', 'capTable', 'capTable.startup'],
       });
-
+  
       if (capTableInvestors.length === 0) {
         throw new Error('No investors found for this company');
       }
-
+  
       // Aggregate data for each investor
       const investorDataMap: Map<number, InvestorData> = new Map();
-
+  
       capTableInvestors.forEach((capTableInvestor) => {
         const investorId = capTableInvestor.investor.id;
         const investorName = `${capTableInvestor.investor.firstName} ${capTableInvestor.investor.lastName}`;
         const investorTitle = capTableInvestor.title;
         const shares = capTableInvestor.shares;
-
+  
         if (investorDataMap.has(investorId)) {
           // Update existing entry
           const existingData = investorDataMap.get(investorId);
           existingData.totalShares += shares;
-          existingData.percentage = (existingData.totalShares / totalMoneyRaised) * 100;
+          // Ensure totalMoneyRaised is not 0 before calculating percentage
+          existingData.percentage = totalMoneyRaised !== 0 ? (existingData.totalShares / totalMoneyRaised) * 100 : 0;
         } else {
           // Create new entry
-          const percentage = (shares / totalMoneyRaised) * 100;
+          const percentage = totalMoneyRaised !== 0 ? (shares / totalMoneyRaised) * 100 : 0;
           investorDataMap.set(investorId, {
             id: investorId,
             name: investorName,
@@ -200,16 +269,17 @@ export class FundingRoundService {
           });
         }
       });
-
+  
       // Convert map values to an array and return
       const investorData = Array.from(investorDataMap.values());
       return investorData;
     } catch (error) {
-      // Handle any errors that might occur during the process
       console.error('Error fetching all investor data:', error);
-      throw error;
+      throw new InternalServerErrorException('Error fetching all investor data');
     }
   }
+  
+  
 
 
 }

@@ -87,11 +87,18 @@ export class FundingRoundController {
 
   @Put(':id')
   async updateFundingRound(
-    @Param('id') id: number,
-    @Body() updateData: Partial<FundingRound>,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { updateData: Partial<FundingRound>, investors: { id: number; shares: number; title: string }[] }
   ): Promise<FundingRound> {
-    const investorIds = updateData.investors?.map(investor => investor.id) || [];
-    return this.fundingRoundService.update(id, updateData, investorIds);
+    try {
+      const { updateData, investors } = body;
+      // Call the service method to update the funding round
+      const updatedFundingRound = await this.fundingRoundService.update(id, updateData, investors);
+      return updatedFundingRound;
+    } catch (error) {
+      this.logger.error('Failed to update funding round:', error);
+      throw new HttpException('Failed to update funding round', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Delete(':id')

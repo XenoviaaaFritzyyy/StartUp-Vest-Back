@@ -41,6 +41,6 @@ export class FundingRound {
   @Column()
   moneyRaised: number;
 
-  @OneToMany(() => CapTableInvestor, capTableInvestor => capTableInvestor.capTable, { cascade: true })
+  @OneToMany(() => CapTableInvestor, (capTableInvestor) => capTableInvestor.capTable)
   capTableInvestors: CapTableInvestor[];
 }
