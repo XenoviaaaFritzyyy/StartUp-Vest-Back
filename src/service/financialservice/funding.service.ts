@@ -100,18 +100,18 @@ export class FundingRoundService {
     if (!fundingRound) {
       throw new NotFoundException('Funding round not found');
     }
-
+  
     // Update the funding round with new data
     Object.assign(fundingRound, updateData);
-
+  
     // Retrieve all existing cap table investors for this funding round
     const existingCapTableInvestors = await this.capTableInvestorRepository.find({
       where: { capTable: { id: fundingRound.id } },
       relations: ['investor'],
     });
-
+  
     const updatedCapTableInvestors = [];
-
+  
     // Update existing investors and add new investors
     for (const { id: investorId, shares, title } of investorData) {
       let capTableInvestor = existingCapTableInvestors.find(investor => investor.investor.id === investorId);
@@ -131,21 +131,22 @@ export class FundingRoundService {
       // Add to updated investors list
       updatedCapTableInvestors.push(capTableInvestor);
     }
-
+  
     // Save all updated and new investors to the cap table
     await this.capTableInvestorRepository.save(updatedCapTableInvestors);
-
-    // Compute the new money raised
-    fundingRound.moneyRaised = updatedCapTableInvestors.reduce((acc, investor) => acc + investor.shares, 0);
-
+  
+    // Recalculate the money raised
+    const totalMoneyRaised = updatedCapTableInvestors.reduce((acc, investor) => acc + investor.shares, 0);
+    fundingRound.moneyRaised = totalMoneyRaised;
+  
     // Save the updated funding round
     const updatedFundingRound = await this.fundingRoundRepository.save(fundingRound);
-
+  
     // Manually set the updated cap table investors into the updatedFundingRound for return
     updatedFundingRound.capTableInvestors = updatedCapTableInvestors;
-
+  
     return updatedFundingRound;
-  }
+  }  
 
   async softDelete(id: number): Promise<void> {
     const fundingRound = await this.fundingRoundRepository.findOne({
