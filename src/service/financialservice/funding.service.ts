@@ -224,26 +224,61 @@ export class FundingRoundService {
       throw error;
     }
   }
-
-  async getAllInvestorData(companyId: number): Promise<InvestorData[]> {
+  async getAllInvestorsData(companyId: number): Promise<InvestorData[]> {
     try {
-      // Fetch total money raised for the company
       const totalMoneyRaised = await this.getTotalMoneyRaisedForStartup(companyId);
   
-      // Fetch all active cap table investors for the specified company
       const capTableInvestors = await this.capTableInvestorRepository.find({
         where: {
           capTable: { startup: { id: companyId } },
-          isDeleted: false, // Filter out soft-deleted cap table investors
+          isDeleted: false,
         },
         relations: ['investor', 'capTable', 'capTable.startup'],
       });
   
-      if (capTableInvestors.length === 0) {
-        throw new Error('No investors found for this company');
-      }
+      const investorDataMap = new Map<number, InvestorData>();
   
-      // Aggregate data for each investor
+      capTableInvestors.forEach((capTableInvestor) => {
+        const { id, firstName, lastName } = capTableInvestor.investor;
+        const investorName = `${firstName} ${lastName}`;
+        const { title, shares } = capTableInvestor;
+  
+        if (investorDataMap.has(id)) {
+          const existingData = investorDataMap.get(id);
+          existingData.totalShares += shares;
+          existingData.percentage = totalMoneyRaised ? (existingData.totalShares / totalMoneyRaised) * 100 : 0;
+        } else {
+          investorDataMap.set(id, {
+            id,
+            name: investorName,
+            title,
+            totalShares: shares,
+            percentage: totalMoneyRaised ? (shares / totalMoneyRaised) * 100 : 0,
+          });
+        }
+      });
+  
+      return Array.from(investorDataMap.values());
+    } catch (error) {
+      this.logger.error('Error fetching all investor data:', error.message);
+      throw new InternalServerErrorException('Error fetching all investor data');
+    }
+  }
+  
+  
+
+  async getAllInvestorData(companyId: number): Promise<InvestorData[]> {
+    try {
+      const totalMoneyRaised = await this.getTotalMoneyRaisedForStartup(companyId);
+  
+      const capTableInvestors = await this.capTableInvestorRepository.find({
+        where: {
+          capTable: { startup: { id: companyId } },
+          isDeleted: false,
+        },
+        relations: ['investor', 'capTable', 'capTable.startup'],
+      });
+  
       const investorDataMap: Map<number, InvestorData> = new Map();
   
       capTableInvestors.forEach((capTableInvestor) => {
@@ -253,13 +288,10 @@ export class FundingRoundService {
         const shares = capTableInvestor.shares;
   
         if (investorDataMap.has(investorId)) {
-          // Update existing entry
           const existingData = investorDataMap.get(investorId);
           existingData.totalShares += shares;
-          // Ensure totalMoneyRaised is not 0 before calculating percentage
           existingData.percentage = totalMoneyRaised !== 0 ? (existingData.totalShares / totalMoneyRaised) * 100 : 0;
         } else {
-          // Create new entry
           const percentage = totalMoneyRaised !== 0 ? (shares / totalMoneyRaised) * 100 : 0;
           investorDataMap.set(investorId, {
             id: investorId,
@@ -271,14 +303,14 @@ export class FundingRoundService {
         }
       });
   
-      // Convert map values to an array and return
-      const investorData = Array.from(investorDataMap.values());
-      return investorData;
+      return Array.from(investorDataMap.values());
     } catch (error) {
-      console.error('Error fetching all investor data:', error);
+      this.logger.error('Error fetching all investor data:', error);
       throw new InternalServerErrorException('Error fetching all investor data');
     }
   }
+  
+  
   
   
 

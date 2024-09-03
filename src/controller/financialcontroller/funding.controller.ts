@@ -6,6 +6,7 @@ import { UserService } from 'src/service/user.service';
 import * as jwt from 'jsonwebtoken';
 import { Investor } from 'src/entities/businessprofileentities/investor.entity';
 import { InvestorService } from 'src/service/businessprofileservice/investor.service';
+import { InvestorData } from 'src/service/financialservice/funding.service';
 
 @Controller('funding-rounds')
 export class FundingRoundController {
@@ -134,9 +135,32 @@ export class FundingRoundController {
     return this.fundingRoundService.getTotalSharesForInvestor(investorId, companyId);
   }
 
-  @Get('investors/:companyId')
-  async getAllInvestorData(@Param('companyId') companyId: number) {
-    return this.fundingRoundService.getAllInvestorData(companyId);
+  @Get('investors/all')
+  async getAllInvestorsData(@Param('companyId') companyId: number) {
+    return this.fundingRoundService.getAllInvestorsData(companyId);
   }
+
+  // Remove this method as it duplicates functionality
+// @Get('investors/all')
+// async getAllInvestorsData(@Param('companyId') companyId: number) {
+//   return this.fundingRoundService.getAllInvestorsData(companyId);
+// }
+
+// Use this single endpoint to fetch all investors for a specific company
+@Get('investors/:companyId')
+async getAllInvestorData(@Param('companyId') companyId: number): Promise<InvestorData[]> {
+  try {
+    const investors = await this.fundingRoundService.getAllInvestorData(companyId);
+    // Return an empty array if no investors are found
+    if (investors.length === 0) {
+      return [];
+    }
+    return investors;
+  } catch (error) {
+    this.logger.error(`Failed to fetch investors for company ${companyId}:`, error);
+    throw new HttpException('Failed to fetch investors', HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+}
+
 }
 
